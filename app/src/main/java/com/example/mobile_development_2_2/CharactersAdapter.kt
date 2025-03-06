@@ -1,94 +1,119 @@
 package com.example.mobile_development_2_2
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import com.bumptech.glide.Glide
+import com.example.mobile_development_2_2.databinding.HumanCardBinding
+import com.example.mobile_development_2_2.databinding.AlienCardBinding
+import com.example.mobile_development_2_2.databinding.OtherCardBinding
 
-enum class CharactersType(type: String) {
-    HUMAN("human"),
-
+abstract class CharacterViewHolder(private val itemBinding: ViewBinding) :
+    RecyclerView.ViewHolder(itemBinding.root)
+{
+    abstract fun bind(character: ResultOfCharactersQueue)
 }
 
-class RickAndMortyCharacterAdapter() : ListAdapter<RickAndMortyCharactersData, RecyclerView.ViewHolder>(DayDiffCallback()) {
+class RickAndMortyCharacterAdapter(private val characters: ArrayList<ResultOfCharactersQueue>) :
+    RecyclerView.Adapter<CharacterViewHolder>() {
 
-    inner class DayViewHolderHot(view: View) : RecyclerView.ViewHolder(view) {
-        val CharacterIcon: ImageView = view.findViewById<ImageView>(R.id.CharacterIcon);
-        val CharacterName: TextView = view.findViewById<TextView>(R.id.CharacterName)
-        val CharacterStatus: TextView = view.findViewById<TextView>(R.id.CharacterStatus)
-        val CharacterGender: TextView = view.findViewById<TextView>(R.id.CharacterGender)
+    private var loading = false
 
-        fun bind(position: Int) {
-            val character: RickAndMortyCharactersData = currentList[position]
-            CharacterName.setText(Results.status)
-            plusTxt.setText(hotDay.main.getTempAsString());
-            val address = "https://openweathermap.org/img/wn/${hotDay.weather[0].icon}@2x.png"
-            Glide.with(icon).load(address).into(icon)
+    fun isLoading(): Boolean{
+        return loading
+    }
+    companion object {
+        const val VIEW_TYPE_HUMAN : Int = 0
+        const val VIEW_TYPE_ALIEN : Int = 1
+        const val VIEW_TYPE_OTHER : Int = 2
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterViewHolder {
+        return when(viewType){
+            VIEW_TYPE_HUMAN -> {
+                val itemBinding = HumanCardBinding.inflate(LayoutInflater.from(parent.context),
+                    parent, false)
+                return HumanViewHolder(itemBinding)
+            }
+            VIEW_TYPE_ALIEN -> {
+                val itemBinding = AlienCardBinding.inflate(LayoutInflater.from(parent.context),
+                    parent, false)
+                return AlienViewHolder(itemBinding)
+            }
+            else ->{
+                val itemBinding = OtherCardBinding.inflate(LayoutInflater.from(parent.context),
+                    parent, false)
+                return OtherViewHolder(itemBinding)
+            }
         }
     }
 
-    inner class DayViewHolderCold(view: View) : RecyclerView.ViewHolder(view) {
-        val datetime: TextView = view.findViewById<TextView>(R.id.datetime);
-        val minusTxt: TextView = view.findViewById<TextView>(R.id.txt_minus_temperature)
-        val icon: ImageView = view.findViewById<ImageView>(R.id.icon)
+    override fun getItemCount(): Int {
+        return characters.size + if (loading) 1 else 0
+    }
 
-        fun bind(position: Int) {
-            val coldDay: RickAndMortyCharactersData = currentList[position]
-            datetime.setText(coldDay.dt_txt)
-            minusTxt.setText(coldDay.main.getTempAsString());
-            val address = "https://openweathermap.org/img/wn/${coldDay.weather[0].icon}@2x.png"
-            Glide.with(icon).load(address).into(icon)
-        }
+    override fun onBindViewHolder(holder: CharacterViewHolder, position: Int) {
+        val character: ResultOfCharactersQueue = characters[position]
+        holder.bind(character)
     }
 
     override fun getItemViewType(position: Int): Int {
-        val day: RickAndMortyCharactersData = currentList[position]
-        if (day.main.temp > 0) {
-            return VIEW_TYPE_HOT
+
+        return when (characters[position].species) {
+                    "Human" -> VIEW_TYPE_HUMAN
+                    "Alien" -> VIEW_TYPE_ALIEN
+                    else -> VIEW_TYPE_OTHER
+                }
         }
-        return VIEW_TYPE_COLD
+
+    fun addCharacters(newCharacters: List<ResultOfCharactersQueue>) {
+        val oldSize = characters.size
+        characters.addAll(newCharacters)
+        notifyItemRangeInserted(oldSize, newCharacters.size)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if (viewType == VIEW_TYPE_HOT) {
-            return DayViewHolderHot(
-                LayoutInflater.from(parent.context).inflate(
-                    R.layout.r_item_hot,
-                    parent, false
-                )
-            )
-        }
-        return DayViewHolderCold(
-            LayoutInflater.from(parent.context).inflate(
-                R.layout.r_item_cold,
-                parent, false
-            )
-        )
-    }
-
-    override fun getItemCount() = currentList.size
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if(holder.itemViewType == VIEW_TYPE_HOT){
-            (holder as DayViewHolderHot).bind(position)
-        }
-        else{
-            (holder as DayViewHolderCold).bind(position)
+    // Метод для управления состоянием загрузки
+    fun setLoading(isLoading: Boolean) {
+        loading = isLoading
+        if (isLoading) {
+            notifyItemInserted(characters.size)
+        } else {
+            notifyItemRemoved(characters.size)
         }
     }
 }
 
-class DayDiffCallback : DiffUtil.ItemCallback<RickAndMortyCharactersData>() {
-    override fun areItemsTheSame(oldItem: RickAndMortyCharactersData, newItem: RickAndMortyCharactersData): Boolean {
-        return oldItem.dt_txt == newItem.dt_txt;
+    class HumanViewHolder(private val itemBinding: HumanCardBinding) :
+        CharacterViewHolder(itemBinding)
+    {
+        override fun bind(character: ResultOfCharactersQueue){
+            Glide.with(itemBinding.CharacterIcon).load(character.image).into(itemBinding.CharacterIcon)
+            itemBinding.CharacterName.text = character.name
+            itemBinding.CharacterStatus.text = character.status
+            itemBinding.CharacterGender.text = character.gender
+        }
     }
 
-    override fun areContentsTheSame(oldItem: RickAndMortyCharactersData, newItem: RickAndMortyCharactersData): Boolean {
-        return oldItem == newItem;
+    class AlienViewHolder(private val itemBinding: AlienCardBinding) :
+        CharacterViewHolder(itemBinding)
+    {
+        override fun bind(character: ResultOfCharactersQueue){
+            Glide.with(itemBinding.CharacterIcon).load(character.image).into(itemBinding.CharacterIcon)
+            itemBinding.CharacterName.text = character.name
+            itemBinding.CharacterStatus.text = character.status
+            itemBinding.CharacterGender.text = character.gender
+        }
     }
-}
+    class OtherViewHolder(private val itemBinding: OtherCardBinding) :
+        CharacterViewHolder(itemBinding)
+    {
+        override fun bind(character: ResultOfCharactersQueue){
+            Glide.with(itemBinding.CharacterIcon).load(character.image).into(itemBinding.CharacterIcon)
+            itemBinding.CharacterName.text = character.name
+            itemBinding.CharacterStatus.text = character.status
+            itemBinding.CharacterGender.text = character.gender
+        }
+    }
+
+
