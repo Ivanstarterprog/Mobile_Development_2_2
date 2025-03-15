@@ -10,6 +10,7 @@
     <ImageView
         android:id="@+id/CharacterIcon"
         android:layout_width="75dp"
+        android:layout_marginEnd="15sp"
         android:layout_height="75dp"/>
     <LinearLayout
         android:gravity="center_vertical"
