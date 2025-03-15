@@ -13,9 +13,7 @@ import java.io.IOException
 class MainMenuViewModel : ViewModel() {
     private val _items = MutableLiveData<RickAndMortyCharactersData>()
     val items: LiveData<RickAndMortyCharactersData> get() = _items
-
-    private var _errorText = "";
-
+    private var _errorText = ""
     private var _currentPage = 1
 
     fun nextPage() {
