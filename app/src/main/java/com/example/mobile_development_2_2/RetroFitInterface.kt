@@ -11,15 +11,16 @@ interface GetCharacters {
     @GET("character")
     fun getAllCharacters(@Query("page") page : Int) : Call<RickAndMortyCharactersData>
 }
+class RickAndMortyApi{
+    companion object {
+        private const val baseUrl = "https://rickandmortyapi.com/api/"
+        val instance: GetCharacters by lazy {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
 
-object RickAndMortyApi {
-    private const val baseUrl = "https://rickandmortyapi.com/api/"
-    val instance: GetCharacters by lazy {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        retrofit.create(GetCharacters::class.java)
+            retrofit.create(GetCharacters::class.java)
+        }
     }
 }
