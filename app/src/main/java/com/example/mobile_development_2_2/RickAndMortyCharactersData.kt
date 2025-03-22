@@ -10,7 +10,7 @@ data class Info(
     @SerializedName("prev") val previousPage: String?
 )
 
-data class Results(
+data class ResultOfCharactersQueue(
     @SerializedName("id") val id: Int,
     @SerializedName("name") val name: String,
     @SerializedName("status") val status: String,
@@ -22,5 +22,5 @@ data class Results(
 
 data class RickAndMortyCharactersData(
     @SerializedName("info") val info: Info,
-    @SerializedName("results") val results: ArrayList<Results>
+    @SerializedName("results") val results: ArrayList<ResultOfCharactersQueue>
 )
