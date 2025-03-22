@@ -1,6 +1,5 @@
 package com.example.mobile_development_2_2
 
-import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -9,7 +8,7 @@ import retrofit2.http.Query
 
 interface GetCharacters {
     @GET("character")
-    fun getAllCharacters(@Query("page") page : Int) : Call<RickAndMortyCharactersData>
+    suspend fun getAllCharacters(@Query("page") page : Int) : RickAndMortyCharactersData
 }
 class RickAndMortyApi{
     companion object {
