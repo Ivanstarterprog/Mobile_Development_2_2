@@ -69,7 +69,7 @@ class UnitTests {
     @Test
     fun `Проверка отображения ошибки`() = runBlocking {
         `when`(characterRepository.getCharacters(1)).thenThrow(RuntimeException("Site"))
-
+        viewModel.pickPage(1)
         viewModel.fetchCharactersRequest()
 
         val observer = Observer<String> {}

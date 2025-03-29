@@ -24,7 +24,7 @@ glide = "4.16.0"
 gson = "2.11.0"
 legacySupportV4 = "1.0.0"
 fragmentKtx = "1.8.6"
-junitJupiter = "5.8.1"
+junitJupiter = "5.8.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

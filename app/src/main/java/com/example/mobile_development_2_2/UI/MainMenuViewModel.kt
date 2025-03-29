@@ -10,12 +10,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mobile_development_2_2.CharacterApplication
 import com.example.mobile_development_2_2.ICharacterRepository
-import com.example.mobile_development_2_2.RickAndMortyApi
 import com.example.mobile_development_2_2.RickAndMortyCharactersData
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.IOException
 
 class MainMenuViewModel(private val characterRepository : ICharacterRepository) : ViewModel() {
     companion object {
@@ -41,24 +37,15 @@ class MainMenuViewModel(private val characterRepository : ICharacterRepository) 
         _currentPage = newPage
     }
 
-    fun errorTextChange(newText: String){
-        _errorText.value = newText
-    }
 
     fun fetchCharactersRequest() {
         viewModelScope.launch {
             try {
-                val response = withContext(Dispatchers.IO) {
-                    characterRepository.getCharacters(_currentPage)
+                val response = characterRepository.getCharacters(_currentPage)
                         .getOrThrow()
-                }
                 _items.value = response
-                _errorText.value = response.toString()
-            } catch (t: Throwable) {
-                _errorText.value = when (t) {
-                    is IOException -> "Проблема с подключением к сети!"
-                    else -> "Ошибка!"
-                }
+            } catch (error: Exception){
+                _errorText.postValue(error.message)
             }
         }
     }
