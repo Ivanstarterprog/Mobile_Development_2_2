@@ -18,7 +18,7 @@ class MainMenu : Fragment() {
 
     private var adapter: RickAndMortyCharacterAdapter = RickAndMortyCharacterAdapter(ArrayList())
     private val binding get() = _binding!!
-    private val viewModel: MainMenuViewModel by viewModels()
+    private val viewModel: MainMenuViewModel by viewModels{MainMenuViewModel.Factory}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
